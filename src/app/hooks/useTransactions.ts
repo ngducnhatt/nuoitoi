@@ -25,9 +25,10 @@ const fetcher = async (url: string) => {
 			skipEmptyLines: true,
 			complete: (results) => {
 				const parsedData = (results.data as unknown[]).map(
-					(row: Record<string, string>, index: number) => {
+					(row, index) => {
+						const r = row as Record<string, string>;
 						// 1. Xử lý số tiền
-						const rawAmount = row["Số tiền"] || "0";
+						const rawAmount = r["Số tiền"] || "0";
 						const amount = parseFloat(
 							rawAmount
 								.toString()
@@ -36,7 +37,7 @@ const fetcher = async (url: string) => {
 						);
 
 						// 2. Xử lý loại giao dịch
-						const typeString = ((row["Loại"] || "") as string)
+						const typeString = ((r["Loại"] || "") as string)
 							.toString()
 							.toLowerCase()
 							.trim();
@@ -45,7 +46,7 @@ const fetcher = async (url: string) => {
 							typeString.includes("in");
 
 						// 3. Xử lý nội dung & Tách tên người gửi
-						const content = row["Nội dung thanh toán"] || "";
+						const content = r["Nội dung thanh toán"] || "";
 						let senderName = "";
 
 						// Regex tách tên (viết hoa) trước các từ khóa
@@ -65,9 +66,9 @@ const fetcher = async (url: string) => {
 
 						return {
 							id: (
-								row["Mã tham chiếu"] || `row-${index}`
+								r["Mã tham chiếu"] || `row-${index}`
 							).toString(),
-							date: (row["Ngày giao dịch"] || "").toString(),
+							date: (r["Ngày giao dịch"] || "").toString(),
 							content: content.toString(),
 							amount: Math.abs(Number.isNaN(amount) ? 0 : amount),
 							type: txType,
